@@ -1,7 +1,5 @@
 package pe.edu.vallegrande.demo3.deacfijos.service;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.edu.vallegrande.demo3.deacfijos.model.Activo;
@@ -13,8 +11,12 @@ import java.util.Optional;
 @Service
 public class ActivoService {
 
+    private final ActivoRepository repository;
+
     @Autowired
-    private ActivoRepository repository;
+    public ActivoService(ActivoRepository repository) {
+        this.repository = repository;
+    }
 
     public Activo crearActivo(Activo activo) {
         return repository.save(activo);

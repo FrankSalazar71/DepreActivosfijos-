@@ -2,11 +2,23 @@ package pe.edu.vallegrande.demo3.deacfijos.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+import lombok.Data;
 import java.util.Date;
 
+@Data
 @Document(collection = "activos")
 public class Activo {
+    public enum Estado {
+        ACTIVO, INACTIVO, EN_MANTENIMIENTO, DADO_DE_BAJA
+    }
+
+    public enum MetodoDepreciacion {
+        LINEA_RECTA,
+        SUMA_DIGITOS,
+        REDUCCION_SALDOS,
+        UNIDADES_PRODUCIDAS
+    }
+
     @Id
     private String id;
 
@@ -17,20 +29,24 @@ public class Activo {
     private String zona;
     private double costoAdquisicion;
     private Date fechaCompra;
-
-    //id categoria
-    //garegar vida util
-    //estado
-    //valor residual
-    //metodo de depresiacion "devaluacion anual"
-
+    
+    // Nuevos campos
+    private String categoriaId;
+    private int vidaUtilAnios;
+    private Estado estado = Estado.ACTIVO;
+    private double valorResidual;
+    private MetodoDepreciacion metodoDepreciacion = MetodoDepreciacion.LINEA_RECTA;
+    private double depreciacionAnual;
+    
     // Constructor vacío
     public Activo() {
     }
 
     // Constructor completo
     public Activo(String id, String descripcion, String tipo, String marca, String modelo,
-                  String zona, double costoAdquisicion, Date fechaCompra) {
+                  String zona, double costoAdquisicion, Date fechaCompra, String categoriaId,
+                  int vidaUtilAnios, Estado estado, double valorResidual, 
+                  MetodoDepreciacion metodoDepreciacion) {
         this.id = id;
         this.descripcion = descripcion;
         this.tipo = tipo;
@@ -39,6 +55,30 @@ public class Activo {
         this.zona = zona;
         this.costoAdquisicion = costoAdquisicion;
         this.fechaCompra = fechaCompra;
+        this.categoriaId = categoriaId;
+        this.vidaUtilAnios = vidaUtilAnios;
+        this.estado = estado;
+        this.valorResidual = valorResidual;
+        this.metodoDepreciacion = metodoDepreciacion;
+        this.calcularDepreciacionAnual();
+    }
+
+    // Método para calcular la depreciación anual
+    public void calcularDepreciacionAnual() {
+        switch (metodoDepreciacion) {
+            case LINEA_RECTA:
+                this.depreciacionAnual = (costoAdquisicion - valorResidual) / vidaUtilAnios;
+                break;
+            case SUMA_DIGITOS:
+                // Implementar cálculo para suma de dígitos
+                break;
+            case REDUCCION_SALDOS:
+                // Implementar cálculo para reducción de saldos
+                break;
+            case UNIDADES_PRODUCIDAS:
+                // Implementar cálculo para unidades producidas
+                break;
+        }
     }
 
     // Getters
