@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="dashboard-container">
       <h1>Dashboard</h1>
-      <p>Bienvenido al sistema, chambeen en el front ya hicimos todo aña</p>
+      <p>Bienvenido al sistema</p>
     </div>
   `,
   styles: [`
