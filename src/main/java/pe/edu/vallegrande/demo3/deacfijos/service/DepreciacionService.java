@@ -59,37 +59,53 @@ public class DepreciacionService {
         }
 
         Activo activo = activoOpt.get();
+        
+        // Obtener depreciaciones anteriores para calcular el valor en libros actual
+        List<Depreciacion> depreciacionesAnteriores = depreciacionRepository.findByActivoId(activoId);
+        double depreciacionAcumulada = depreciacionesAnteriores.stream()
+                .mapToDouble(Depreciacion::getValorDepreciado)
+                .sum();
+        
+        double valorLibros = activo.getCostoAdquisicion() - depreciacionAcumulada;
         double valorDepreciado = 0.0;
-        double valorLibros = 0.0;
+        double tasaDepreciacion = 0.0;
 
         // Cálculo según el método de depreciación del activo
         switch (activo.getMetodoDepreciacion()) {
             case LINEA_RECTA:
                 valorDepreciado = (activo.getCostoAdquisicion() - activo.getValorResidual()) / activo.getVidaUtilAnios();
+                tasaDepreciacion = 1.0 / activo.getVidaUtilAnios();
                 break;
             case SUMA_DIGITOS:
-                // Implementar cálculo para suma de dígitos
+                int aniosRestantes = activo.getVidaUtilAnios() - depreciacionesAnteriores.size();
+                int sumaDigitos = (activo.getVidaUtilAnios() * (activo.getVidaUtilAnios() + 1)) / 2;
+                valorDepreciado = ((activo.getCostoAdquisicion() - activo.getValorResidual()) * aniosRestantes) / sumaDigitos;
+                tasaDepreciacion = (double) aniosRestantes / sumaDigitos;
                 break;
             case REDUCCION_SALDOS:
-                // Implementar cálculo para reducción de saldos
+                double tasaBase = 1 - Math.pow(activo.getValorResidual() / activo.getCostoAdquisicion(), 1.0 / activo.getVidaUtilAnios());
+                valorDepreciado = valorLibros * tasaBase;
+                tasaDepreciacion = tasaBase;
                 break;
             case UNIDADES_PRODUCIDAS:
-                // Implementar cálculo para unidades producidas
+                // Para este método necesitaríamos información adicional sobre las unidades producidas
+                valorDepreciado = (activo.getCostoAdquisicion() - activo.getValorResidual()) / activo.getVidaUtilAnios();
+                tasaDepreciacion = 1.0 / activo.getVidaUtilAnios();
                 break;
         }
 
-        // Obtener la última depreciación para calcular el nuevo valor en libros
-        List<Depreciacion> depreciacionesAnteriores = depreciacionRepository.findByActivoId(activoId);
-        if (depreciacionesAnteriores.isEmpty()) {
-            valorLibros = activo.getCostoAdquisicion() - valorDepreciado;
-        } else {
-            valorLibros = depreciacionesAnteriores.get(depreciacionesAnteriores.size() - 1).getValorLibros() - valorDepreciado;
-        }
+        // Crear y guardar la nueva depreciación
+        Depreciacion depreciacion = new Depreciacion();
+        depreciacion.setActivoId(activoId);
+        depreciacion.setFecha(fecha);
+        depreciacion.setValorDepreciado(valorDepreciado);
+        depreciacion.setValorLibros(valorLibros - valorDepreciado);
+        depreciacion.setAnioDepreciacion(fecha.getYear());
+        depreciacion.setMesDepreciacion(fecha.getMonthValue());
+        depreciacion.setTasaDepreciacionAplicada(tasaDepreciacion);
+        depreciacion.setObservaciones("Depreciación calculada automáticamente - Método: " + activo.getMetodoDepreciacion());
 
-        Depreciacion nuevaDepreciacion = new Depreciacion(activoId, fecha, valorDepreciado, valorLibros);
-        nuevaDepreciacion.setTasaDepreciacionAplicada(valorDepreciado / activo.getCostoAdquisicion());
-        
-        return depreciacionRepository.save(nuevaDepreciacion);
+        return depreciacionRepository.save(depreciacion);
     }
 
     public boolean eliminarDepreciacion(String id) {

@@ -67,18 +67,64 @@ public class Activo {
     public void calcularDepreciacionAnual() {
         switch (metodoDepreciacion) {
             case LINEA_RECTA:
+                // (Costo - Valor Residual) / Vida Útil
                 this.depreciacionAnual = (costoAdquisicion - valorResidual) / vidaUtilAnios;
                 break;
+                
             case SUMA_DIGITOS:
-                // Implementar cálculo para suma de dígitos
+                // Factor = (Años restantes) / (Suma de dígitos de años)
+                int sumaDigitos = (vidaUtilAnios * (vidaUtilAnios + 1)) / 2;
+                this.depreciacionAnual = ((costoAdquisicion - valorResidual) * vidaUtilAnios) / sumaDigitos;
                 break;
+                
             case REDUCCION_SALDOS:
-                // Implementar cálculo para reducción de saldos
+                // Tasa = 1 - (Valor Residual/Costo)^(1/n)
+                double tasa = 1 - Math.pow(valorResidual / costoAdquisicion, 1.0 / vidaUtilAnios);
+                this.depreciacionAnual = costoAdquisicion * tasa;
                 break;
+                
             case UNIDADES_PRODUCIDAS:
-                // Implementar cálculo para unidades producidas
+                // En este caso, necesitaríamos información adicional sobre las unidades producidas
+                // Por ahora, usaremos un cálculo básico similar al de línea recta
+                this.depreciacionAnual = (costoAdquisicion - valorResidual) / vidaUtilAnios;
                 break;
         }
+    }
+    
+    // Método para obtener el valor en libros actual
+    public double calcularValorLibros(int anioActual) {
+        if (anioActual <= 0 || anioActual > vidaUtilAnios) {
+            return valorResidual;
+        }
+        
+        double valorLibros = costoAdquisicion;
+        
+        switch (metodoDepreciacion) {
+            case LINEA_RECTA:
+                valorLibros = costoAdquisicion - (depreciacionAnual * anioActual);
+                break;
+                
+            case SUMA_DIGITOS:
+                int sumaDigitos = (vidaUtilAnios * (vidaUtilAnios + 1)) / 2;
+                double depreciacionAcumulada = 0;
+                for (int i = 1; i <= anioActual; i++) {
+                    int factorAnio = vidaUtilAnios - i + 1;
+                    depreciacionAcumulada += ((costoAdquisicion - valorResidual) * factorAnio) / sumaDigitos;
+                }
+                valorLibros = costoAdquisicion - depreciacionAcumulada;
+                break;
+                
+            case REDUCCION_SALDOS:
+                double tasa = 1 - Math.pow(valorResidual / costoAdquisicion, 1.0 / vidaUtilAnios);
+                valorLibros = costoAdquisicion * Math.pow(1 - tasa, anioActual);
+                break;
+                
+            case UNIDADES_PRODUCIDAS:
+                valorLibros = costoAdquisicion - (depreciacionAnual * anioActual);
+                break;
+        }
+        
+        return Math.max(valorLibros, valorResidual);
     }
 
     // Getters

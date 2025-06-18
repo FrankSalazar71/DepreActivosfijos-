@@ -32,6 +32,7 @@ public class ActivoService {
 
     public Activo actualizarActivo(String id, Activo activoActualizado) {
         return repository.findById(id).map(activo -> {
+            // Actualizar todos los campos
             activo.setDescripcion(activoActualizado.getDescripcion());
             activo.setTipo(activoActualizado.getTipo());
             activo.setMarca(activoActualizado.getMarca());
@@ -39,6 +40,15 @@ public class ActivoService {
             activo.setZona(activoActualizado.getZona());
             activo.setCostoAdquisicion(activoActualizado.getCostoAdquisicion());
             activo.setFechaCompra(activoActualizado.getFechaCompra());
+            activo.setCategoriaId(activoActualizado.getCategoriaId());
+            activo.setVidaUtilAnios(activoActualizado.getVidaUtilAnios());
+            activo.setEstado(activoActualizado.getEstado());
+            activo.setValorResidual(activoActualizado.getValorResidual());
+            activo.setMetodoDepreciacion(activoActualizado.getMetodoDepreciacion());
+            
+            // Recalcular la depreciación
+            activo.calcularDepreciacionAnual();
+            
             return repository.save(activo);
         }).orElse(null);
     }
