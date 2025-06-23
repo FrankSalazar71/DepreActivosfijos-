@@ -9,6 +9,7 @@ import pe.edu.vallegrande.demo3.deacfijos.service.DepreciacionService;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional; // Importar Optional
 
 @RestController
 @RequestMapping("/api/depreciaciones")
@@ -51,11 +52,40 @@ public class DepreciacionController {
             }
             return ResponseEntity.ok(service.calcularYRegistrarDepreciacion(activoId, fecha));
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            // Capturar excepciones específicas del servicio si es necesario
+            return ResponseEntity.badRequest().body(null); // Devolver 400 con cuerpo nulo o mensaje de error
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    /**
+     * Actualiza una depreciación existente
+     * @param id ID de la depreciación a actualizar
+     * @param depreciacionActualizada Datos actualizados de la depreciación
+     * @return La depreciación actualizada o 404 si no se encuentra
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<Depreciacion> actualizar(@PathVariable String id, @RequestBody Depreciacion depreciacionActualizada) {
+        try {
+            Optional<Depreciacion> depreciacionExistente = service.obtenerPorId(id);
+            if (!depreciacionExistente.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Asegurar que el ID de la actualización coincida con el ID de la URL
+            depreciacionActualizada.setId(id);
+
+            // Puedes agregar validaciones adicionales aquí si es necesario
+            // Por ejemplo, no permitir cambiar el activoId o la fecha si no quieres
+
+            Depreciacion actualizada = service.actualizarDepreciacion(depreciacionActualizada);
+            return ResponseEntity.ok(actualizada);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
 
     /**
      * Lista todas las depreciaciones registradas
@@ -90,8 +120,8 @@ public class DepreciacionController {
     public ResponseEntity<List<Depreciacion>> obtenerPorActivoId(@PathVariable String activoId) {
         try {
             List<Depreciacion> depreciaciones = service.obtenerPorActivoId(activoId);
-            return depreciaciones.isEmpty() ? 
-                ResponseEntity.noContent().build() : 
+            return depreciaciones.isEmpty() ?
+                ResponseEntity.noContent().build() :
                 ResponseEntity.ok(depreciaciones);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -105,8 +135,8 @@ public class DepreciacionController {
     public ResponseEntity<List<Depreciacion>> obtenerPorAnio(@PathVariable int anio) {
         try {
             List<Depreciacion> depreciaciones = service.obtenerPorAnio(anio);
-            return depreciaciones.isEmpty() ? 
-                ResponseEntity.noContent().build() : 
+            return depreciaciones.isEmpty() ?
+                ResponseEntity.noContent().build() :
                 ResponseEntity.ok(depreciaciones);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -125,8 +155,8 @@ public class DepreciacionController {
                 return ResponseEntity.badRequest().build();
             }
             List<Depreciacion> depreciaciones = service.obtenerPorAnioYMes(anio, mes);
-            return depreciaciones.isEmpty() ? 
-                ResponseEntity.noContent().build() : 
+            return depreciaciones.isEmpty() ?
+                ResponseEntity.noContent().build() :
                 ResponseEntity.ok(depreciaciones);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -145,8 +175,8 @@ public class DepreciacionController {
                 return ResponseEntity.badRequest().build();
             }
             List<Depreciacion> depreciaciones = service.obtenerPorRangoFechas(fechaInicio, fechaFin);
-            return depreciaciones.isEmpty() ? 
-                ResponseEntity.noContent().build() : 
+            return depreciaciones.isEmpty() ?
+                ResponseEntity.noContent().build() :
                 ResponseEntity.ok(depreciaciones);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
@@ -166,4 +196,4 @@ public class DepreciacionController {
             return ResponseEntity.internalServerError().build();
         }
     }
-} 
+}

@@ -44,9 +44,28 @@ public class UsuarioService {
                 });
     }
 
-    public void delete(String id) {
+    /*public void delete(String id) {
         usuarioRepository.deleteById(id);
+    }*/
+
+    public Optional<Usuario> desactivarUsuario(String id) {
+        return usuarioRepository.findById(id)
+                .map(usuario -> {
+                    usuario.setEstado(Usuario.Estado.INACTIVO);
+                    usuario.setFechaModificacion(LocalDateTime.now()); // Opcional: actualizar fecha de modificación
+                    return usuarioRepository.save(usuario);
+                });
     }
+
+    public Optional<Usuario> activarUsuario(String id) {
+        return usuarioRepository.findById(id)
+                .map(usuario -> {
+                    usuario.setEstado(Usuario.Estado.ACTIVO);
+                    usuario.setFechaModificacion(LocalDateTime.now()); // Opcional: actualizar fecha de modificación
+                    return usuarioRepository.save(usuario);
+                });
+    }
+
 
     public Optional<Usuario> findByCorreo(String correo) {
         return usuarioRepository.findByCorreo(correo);

@@ -53,11 +53,38 @@ public class ActivoService {
         }).orElse(null);
     }
 
-    public boolean eliminarActivo(String id) {
+    /*public boolean eliminarActivo(String id) {
         if (repository.existsById(id)) {
             repository.deleteById(id);
             return true;
         }
         return false;
+    }*/
+
+    public Activo save(Activo activo) {
+        return repository.save(activo);
     }
+
+    public Optional<Activo> desactivarActivo(String id) {
+        return repository.findById(id)
+                .map(activo -> {
+                    activo.setEstado(Activo.Estado.INACTIVO);
+                    // Puedes añadir lógica adicional aquí si es necesario al desactivar
+                    return repository.save(activo);
+                });
+    }
+
+    public Optional<Activo> activarActivo(String id) {
+        return repository.findById(id)
+                .map(activo -> {
+                    activo.setEstado(Activo.Estado.ACTIVO);
+                    // Puedes añadir lógica adicional aquí si es necesario al activar
+                    return repository.save(activo);
+                });
+    }
+
+    public List<Activo> listarActivosPorEstado(Activo.Estado estado) {
+        return repository.findByEstado(estado);
+    }
+
 }

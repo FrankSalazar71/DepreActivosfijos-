@@ -67,10 +67,24 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    /*@DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUsuario(@PathVariable String id) {
         usuarioService.delete(id);
+    }*/
+
+    @PutMapping("/{id}/desactivar")
+    public ResponseEntity<Usuario> deactivateUsuario(@PathVariable String id) {
+        return usuarioService.desactivarUsuario(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}/activar")
+    public ResponseEntity<Usuario> activateUsuario(@PathVariable String id) {
+        return usuarioService.activarUsuario(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/correo/{correo}")

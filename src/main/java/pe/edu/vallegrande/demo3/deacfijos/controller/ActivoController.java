@@ -8,6 +8,7 @@ import pe.edu.vallegrande.demo3.deacfijos.service.ActivoService;
 import pe.edu.vallegrande.demo3.deacfijos.service.CategoriaActivoService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/activos")
@@ -37,6 +38,16 @@ public class ActivoController {
         return service.obtenerActivoPorId(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/inactivos")
+    public ResponseEntity<List<Activo>> listarActivosInactivos() {
+        try {
+            List<Activo> inactivos = service.listarActivosPorEstado(Activo.Estado.INACTIVO);
+            return ResponseEntity.ok(inactivos);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PutMapping("/{id}")
@@ -76,12 +87,53 @@ public class ActivoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    /*@DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable String id) {
         return service.eliminarActivo(id) ?
                 ResponseEntity.ok().build() :
                 ResponseEntity.notFound().build();
+    }*/
+
+    @PutMapping("/{id}/desactivar")
+    public ResponseEntity<Activo> desactivarActivo(@PathVariable String id) {
+        try {
+            Optional<Activo> activoOptional = service.obtenerActivoPorId(id);
+
+            if (activoOptional.isPresent()) {
+                Activo activo = activoOptional.get();
+                // Cambiar el estado a INACTIVO
+                activo.setEstado(Activo.Estado.INACTIVO);
+                // Guardar el activo actualizado
+                Activo activoDesactivado = service.save(activo); // Usar el método save del servicio
+                return ResponseEntity.ok(activoDesactivado);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
+        
+    @PutMapping("/{id}/activar")
+    public ResponseEntity<Activo> activarActivo(@PathVariable String id) {
+        try {
+            Optional<Activo> activoOptional = service.obtenerActivoPorId(id);
+
+            if (activoOptional.isPresent()) {
+                Activo activo = activoOptional.get();
+                // Cambiar el estado a ACTIVO
+                activo.setEstado(Activo.Estado.ACTIVO);
+                // Guardar el activo actualizado
+                Activo activoActivado = service.save(activo); // Usar el método save del servicio
+                return ResponseEntity.ok(activoActivado);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
 
     @GetMapping("/categorias")
     public ResponseEntity<List<CategoriaActivo>> listarCategorias() {
