@@ -66,6 +66,9 @@ public class UsuarioService {
                 });
     }
 
+    public List<Usuario> listarUsuariosPorEstado(Usuario.Estado estado) {
+        return usuarioRepository.findByEstado(estado);
+    }
 
     public Optional<Usuario> findByCorreo(String correo) {
         return usuarioRepository.findByCorreo(correo);

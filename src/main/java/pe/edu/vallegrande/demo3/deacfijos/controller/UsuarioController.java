@@ -43,7 +43,10 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<Usuario> getAllUsuarios() {
+    public List<Usuario> getAllUsuarios(@RequestParam(required = false) Usuario.Estado estado) {
+        if (estado != null) {
+            return usuarioService.listarUsuariosPorEstado(estado);
+        }
         return usuarioService.findAll();
     }
 
