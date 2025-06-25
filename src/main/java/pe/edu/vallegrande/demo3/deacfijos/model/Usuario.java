@@ -45,4 +45,6 @@ public class Usuario {
     private LocalDateTime ultimoAcceso;
 
     private LocalDateTime fechaModificacion;
+
+    private String sedeId;
 } 

@@ -40,6 +40,9 @@ public class UsuarioService {
                     usuario.setId(id);
                     usuario.setFechaCreacion(existingUsuario.getFechaCreacion());
                     usuario.setFechaModificacion(LocalDateTime.now());
+                    if (usuario.getSedeId() == null) {
+                         usuario.setSedeId(existingUsuario.getSedeId());
+                    }
                     return usuarioRepository.save(usuario);
                 });
     }
@@ -68,6 +71,10 @@ public class UsuarioService {
 
     public List<Usuario> listarUsuariosPorEstado(Usuario.Estado estado) {
         return usuarioRepository.findByEstado(estado);
+    }
+
+    public List<Usuario> listarUsuariosPorSede(String sedeId) {
+        return usuarioRepository.findBySedeId(sedeId);
     }
 
     public Optional<Usuario> findByCorreo(String correo) {

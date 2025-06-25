@@ -43,9 +43,14 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<Usuario> getAllUsuarios(@RequestParam(required = false) Usuario.Estado estado) {
+    public List<Usuario> getAllUsuarios(
+            @RequestParam(required = false) Usuario.Estado estado,
+            @RequestParam(required = false) String sedeId) {
+
         if (estado != null) {
             return usuarioService.listarUsuariosPorEstado(estado);
+        } else if (sedeId != null && !sedeId.isEmpty()) {
+            return usuarioService.listarUsuariosPorSede(sedeId);
         }
         return usuarioService.findAll();
     }
