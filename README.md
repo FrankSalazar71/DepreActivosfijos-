@@ -1,5 +1,10 @@
 # Sistema de Depreciación de Activos Fijos
 
+## Encargados:
+- Frank Salazar
+- Favio Huaman
+- Victor Cuaresma
+
 ## Descripción
 Sistema web para la gestión y cálculo de depreciación de activos fijos empresariales. Desarrollado con Spring Boot y MongoDB, este sistema permite llevar un control detallado de los activos fijos de una organización y calcular su depreciación de manera automatizada.
 
